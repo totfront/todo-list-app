@@ -94,7 +94,7 @@ export class TaskDashboardComponent implements OnInit, AfterViewInit {
 
   updateSummaryAndChart(): void {
     this.totalTasks = this.allTodos.length;
-    this.completedTasks = this.allTodos.filter((t) => t.completed).length;
+    this.completedTasks = this.allTodos.filter((todo) => todo.completed).length;
     this.pendingTasks = this.totalTasks - this.completedTasks;
 
     if (this.chart) {
@@ -107,6 +107,14 @@ export class TaskDashboardComponent implements OnInit, AfterViewInit {
   }
 
   createChart(): void {
+    // Get CSS custom properties
+    const completedColor = getComputedStyle(document.documentElement)
+      .getPropertyValue('--completed-color')
+      .trim();
+    const pendingColor = getComputedStyle(document.documentElement)
+      .getPropertyValue('--pending-color')
+      .trim();
+
     this.chart = new Chart(this.chartRef.nativeElement, {
       type: 'doughnut',
       data: {
@@ -114,7 +122,7 @@ export class TaskDashboardComponent implements OnInit, AfterViewInit {
         datasets: [
           {
             data: [this.completedTasks, this.pendingTasks],
-            backgroundColor: ['#10B981', '#F59E0B'],
+            backgroundColor: [completedColor, pendingColor],
             borderColor: ['#FFFFFF'],
             borderWidth: 4,
           },
