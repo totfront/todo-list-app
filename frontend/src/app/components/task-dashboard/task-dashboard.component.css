@@ -15,8 +15,8 @@
 }
 
 .task-item.completed-task {
-  background-color: #f8fafc; /* bg-slate-50 */
-  color: #94a3b8; /* text-slate-400 */
+  background-color: var(--completed-color);
+  color: white;
 }
 
 /* CDK Drag and Drop Styles */

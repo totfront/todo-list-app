@@ -17,17 +17,19 @@
               totalTasks
             }}</span>
           </div>
-          <div class="bg-green-50 p-4 rounded-lg text-center">
-            <p class="text-sm font-medium text-green-600">Completed</p>
-            <span class="text-3xl font-bold text-green-700">{{
-              completedTasks
-            }}</span>
+          <div
+            class="p-4 rounded-lg text-center"
+            style="background-color: var(--completed-color); color: white"
+          >
+            <p class="text-sm font-medium">Completed</p>
+            <span class="text-3xl font-bold">{{ completedTasks }}</span>
           </div>
-          <div class="bg-amber-50 p-4 rounded-lg text-center">
-            <p class="text-sm font-medium text-amber-600">Pending</p>
-            <span class="text-3xl font-bold text-amber-700">{{
-              pendingTasks
-            }}</span>
+          <div
+            class="p-4 rounded-lg text-center"
+            style="background-color: var(--pending-color); color: white"
+          >
+            <p class="text-sm font-medium">Pending</p>
+            <span class="text-3xl font-bold">{{ pendingTasks }}</span>
           </div>
         </div>
         <div class="chart-container">
@@ -68,10 +70,10 @@
           <button
             (click)="setFilter('all')"
             [ngClass]="{
-              'active bg-indigo-600 text-white': currentFilter === 'all',
-              'bg-slate-100 text-slate-600 hover:bg-slate-200':
-                currentFilter !== 'all'
+              'active text-white': currentFilter === 'all',
+              'hover:opacity-80': currentFilter !== 'all'
             }"
+            [style.background-color]="'var(--todo-color)'"
             class="px-4 py-1.5 text-sm font-medium rounded-full transition-colors"
           >
             All
@@ -79,10 +81,10 @@
           <button
             (click)="setFilter('pending')"
             [ngClass]="{
-              'active bg-indigo-600 text-white': currentFilter === 'pending',
-              'bg-slate-100 text-slate-600 hover:bg-slate-200':
-                currentFilter !== 'pending'
+              'active text-white': currentFilter === 'pending',
+              'hover:opacity-80': currentFilter !== 'pending'
             }"
+            [style.background-color]="'var(--pending-color)'"
             class="px-4 py-1.5 text-sm font-medium rounded-full transition-colors"
           >
             Pending
@@ -90,11 +92,11 @@
           <button
             (click)="setFilter('completed')"
             [ngClass]="{
-              'active bg-indigo-600 text-white': currentFilter === 'completed',
-              'bg-slate-100 text-slate-600 hover:bg-slate-200':
-                currentFilter !== 'completed'
+              'active text-white': currentFilter === 'completed',
+              'hover:opacity-80': currentFilter !== 'completed'
             }"
-            class="px-4 py-1.5 text-sm font-medium rounded-full transition-colors"
+            [style.outlineColor]="'var(--completed-color)'"
+            class="outline px-4 py-1.5 text-sm font-medium rounded-full transition-colors"
           >
             Completed
           </button>
