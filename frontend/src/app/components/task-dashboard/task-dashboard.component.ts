@@ -1,0 +1,135 @@
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
+import { Chart, registerables } from 'chart.js';
+import { Todo } from '../../models/todo.model';
+import { TodoService } from '../../services/todo.service';
+
+Chart.register(...registerables);
+
+@Component({
+  selector: 'app-task-dashboard',
+  templateUrl: './task-dashboard.component.html',
+  styleUrls: ['./task-dashboard.component.css'],
+  standalone: true,
+  imports: [CommonModule, FormsModule, DragDropModule],
+})
+export class TaskDashboardComponent implements OnInit, AfterViewInit {
+  @ViewChild('completionChart') private chartRef!: ElementRef;
+  private chart!: Chart;
+
+  allTodos: Todo[] = [];
+  filteredTodos: Todo[] = [];
+  newTodoTitle: string = '';
+  currentFilter: 'all' | 'pending' | 'completed' = 'all';
+
+  totalTasks = 0;
+  completedTasks = 0;
+  pendingTasks = 0;
+
+  constructor(private todoService: TodoService) {}
+
+  ngOnInit(): void {
+    this.loadTodos();
+  }
+
+  ngAfterViewInit(): void {
+    this.createChart();
+  }
+
+  loadTodos(): void {
+    this.allTodos = this.todoService.getTodos();
+    this.applyFilter();
+  }
+
+  applyFilter(): void {
+    if (this.currentFilter === 'pending') {
+      this.filteredTodos = this.allTodos.filter((todo) => !todo.completed);
+    } else if (this.currentFilter === 'completed') {
+      this.filteredTodos = this.allTodos.filter((todo) => todo.completed);
+    } else {
+      this.filteredTodos = [...this.allTodos];
+    }
+    this.updateSummaryAndChart();
+  }
+
+  setFilter(filter: 'all' | 'pending' | 'completed'): void {
+    this.currentFilter = filter;
+    this.applyFilter();
+  }
+
+  addTask(): void {
+    if (this.newTodoTitle.trim()) {
+      this.todoService.addTodo(this.newTodoTitle.trim());
+      this.newTodoTitle = '';
+      this.loadTodos();
+    }
+  }
+
+  toggleCompletion(id: number): void {
+    this.todoService.toggleTodoCompletion(id);
+    this.loadTodos();
+  }
+
+  deleteTask(id: number): void {
+    this.todoService.deleteTodo(id);
+    this.loadTodos();
+  }
+
+  drop(event: CdkDragDrop<Todo[]>): void {
+    this.todoService.reorderTodos(
+      this.allTodos,
+      event.previousIndex,
+      event.currentIndex
+    );
+    this.loadTodos();
+  }
+
+  updateSummaryAndChart(): void {
+    this.totalTasks = this.allTodos.length;
+    this.completedTasks = this.allTodos.filter((t) => t.completed).length;
+    this.pendingTasks = this.totalTasks - this.completedTasks;
+
+    if (this.chart) {
+      this.chart.data.datasets[0].data = [
+        this.completedTasks,
+        this.pendingTasks,
+      ];
+      this.chart.update('none');
+    }
+  }
+
+  createChart(): void {
+    this.chart = new Chart(this.chartRef.nativeElement, {
+      type: 'doughnut',
+      data: {
+        labels: ['Completed', 'Pending'],
+        datasets: [
+          {
+            data: [this.completedTasks, this.pendingTasks],
+            backgroundColor: ['#10B981', '#F59E0B'],
+            borderColor: ['#FFFFFF'],
+            borderWidth: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '70%',
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: true },
+        },
+      },
+    });
+    this.updateSummaryAndChart();
+  }
+}
