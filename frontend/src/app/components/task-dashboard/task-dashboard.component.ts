@@ -17,7 +17,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-task-dashboard',
   templateUrl: './task-dashboard.component.html',
-  styleUrls: ['./task-dashboard.component.css'],
+  styleUrls: ['./task-dashboard.component.module.css'],
   standalone: true,
   imports: [CommonModule, FormsModule, DragDropModule],
 })

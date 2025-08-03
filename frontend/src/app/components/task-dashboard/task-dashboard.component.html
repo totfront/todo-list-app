@@ -1,47 +1,41 @@
-<main class="container mx-auto max-w-4xl p-4 sm:p-6 md:p-8">
-  <header class="text-center mb-8">
-    <h1 class="text-4xl font-bold text-slate-900">Task Dashboard</h1>
-    <p class="text-slate-500 mt-2">
-      Your interactive command center for productivity.
-    </p>
+<main class="container">
+  <header class="header">
+    <h1 class="title">Todo tracker 📋 ✅</h1>
   </header>
 
-  <section class="mb-8 p-6 bg-white rounded-xl shadow-sm">
-    <h2 class="text-2xl font-semibold mb-4 text-slate-800">Current Status</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-      <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <article class="status-card status-card--all">
-          <p class="text-sm font-medium text-slate-500">All</p>
-          <span
-            class="text-3xl font-bold text-slate-900"
-            aria-label="Total tasks"
-            >{{ totalTasks }}</span
-          >
+  <section class="section">
+    <div class="statusGrid">
+      <div class="statusCardsContainer">
+        <article class="statusCard statusCardAll">
+          <p class="statusCardLabel">All</p>
+          <span class="statusCardValue" aria-label="Total tasks">{{
+            totalTasks
+          }}</span>
         </article>
-        <article class="status-card status-card--pending">
-          <p class="text-sm font-medium">Pending</p>
-          <span class="text-3xl font-bold" aria-label="Pending tasks">{{
+        <article class="statusCard statusCardPending">
+          <p class="statusCardLabel">Pending</p>
+          <span class="statusCardValue" aria-label="Pending tasks">{{
             pendingTasks
           }}</span>
         </article>
-        <article class="status-card status-card--completed">
-          <p class="text-sm font-medium">Completed</p>
-          <span class="text-3xl font-bold" aria-label="Completed tasks">{{
+        <article class="statusCard statusCardCompleted">
+          <p class="statusCardLabel">Completed</p>
+          <span class="statusCardValue" aria-label="Completed tasks">{{
             completedTasks
           }}</span>
         </article>
       </div>
-      <div class="chart-container">
+      <div class="chartContainer">
         <canvas #completionChart aria-label="Task completion chart"></canvas>
       </div>
     </div>
   </section>
 
   <!-- Add Task Section -->
-  <section class="mb-8">
+  <section class="section">
     <form
       (ngSubmit)="addTask()"
-      class="flex flex-col sm:flex-row gap-3 bg-white p-4 rounded-xl shadow-sm"
+      class="form"
       role="form"
       aria-label="Add new task"
     >
@@ -52,34 +46,32 @@
         [(ngModel)]="newTodoTitle"
         name="newTodoTitle"
         placeholder="What needs to be done?"
-        class="flex-grow p-3 border border-slate-200 rounded-lg focus:outline-[#8e3c10] focus:outline-none transition"
+        class="input"
         aria-describedby="add-task-button"
       />
       <button
         id="add-task-button"
         type="submit"
-        class="bg-[#db570b] text-white font-semibold px-6 py-3 rounded-[1rem] hover:bg-[#8e3c10] transition duration-200"
+        class="addButton"
         aria-label="Add new task"
       >
-        Add
+        Add todo
       </button>
     </form>
   </section>
 
   <!-- Task List Section -->
-  <section class="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
-    <header class="flex flex-col sm:flex-row justify-between items-center mb-4">
-      <h2 class="text-2xl font-semibold text-slate-800 mb-2 sm:mb-0">
-        Your Tasks
-      </h2>
+  <section class="section">
+    <header class="taskListHeader">
+      <h2 class="taskListTitle">Your todos</h2>
       <nav aria-label="Task filter options">
-        <div class="flex items-center gap-2" role="tablist">
+        <div class="filterContainer" role="tablist">
           <button
             (click)="setFilter('all')"
             [ngClass]="{
-              'filter-btn--active': currentFilter === 'all'
+              filterBtnActive: currentFilter === 'all'
             }"
-            class="filter-btn filter-btn--all"
+            class="filterBtn filterBtnAll"
             role="tab"
             [attr.aria-selected]="currentFilter === 'all'"
             aria-label="Show all tasks"
@@ -89,9 +81,9 @@
           <button
             (click)="setFilter('pending')"
             [ngClass]="{
-              'filter-btn--active': currentFilter === 'pending'
+              filterBtnActive: currentFilter === 'pending'
             }"
-            class="filter-btn filter-btn--pending"
+            class="filterBtn filterBtnPending"
             role="tab"
             [attr.aria-selected]="currentFilter === 'pending'"
             aria-label="Show pending tasks"
@@ -101,9 +93,9 @@
           <button
             (click)="setFilter('completed')"
             [ngClass]="{
-              'filter-btn--active': currentFilter === 'completed'
+              filterBtnActive: currentFilter === 'completed'
             }"
-            class="filter-btn filter-btn--completed"
+            class="filterBtn filterBtnCompleted"
             role="tab"
             [attr.aria-selected]="currentFilter === 'completed'"
             aria-label="Show completed tasks"
@@ -118,7 +110,7 @@
       cdkDropList
       [cdkDropListData]="allTodos"
       (cdkDropListDropped)="drop($event)"
-      class="space-y-3"
+      class="taskList"
       role="list"
       aria-label="Task list"
     >
@@ -126,12 +118,12 @@
         *ngFor="let todo of filteredTodos; trackBy: trackByTodoId"
         cdkDrag
         [cdkDragData]="todo"
-        class="task-item"
-        [class.completed-task]="todo.completed"
+        class="taskItem"
+        [class.taskItemCompleted]="todo.completed"
         role="listitem"
       >
         <button
-          class="drag-handle"
+          class="dragHandle"
           cdkDragHandle
           aria-label="Drag to reorder task"
         >
@@ -143,7 +135,7 @@
           [id]="'task-' + todo.id"
           [checked]="todo.completed"
           (change)="toggleCompletion(todo.id)"
-          class="task-checkbox"
+          class="taskCheckbox"
           [attr.aria-label]="
             'Mark task as ' + (todo.completed ? 'incomplete' : 'complete')
           "
@@ -151,15 +143,15 @@
 
         <label
           [for]="'task-' + todo.id"
-          class="task-title"
-          [class.line-through]="todo.completed"
+          class="taskTitle"
+          [class.taskTitleLineThrough]="todo.completed"
         >
           {{ todo.title }}
         </label>
 
         <button
           (click)="deleteTask(todo.id)"
-          class="delete-btn"
+          class="deleteBtn"
           [attr.aria-label]="'Delete task: ' + todo.title"
         >
           <span aria-hidden="true">×</span>
@@ -167,10 +159,7 @@
       </article>
     </div>
 
-    <p
-      *ngIf="filteredTodos.length === 0"
-      class="text-center py-12 text-slate-500"
-    >
+    <p *ngIf="filteredTodos.length === 0" class="emptyState">
       No tasks here. Add one to get started!
     </p>
   </section>

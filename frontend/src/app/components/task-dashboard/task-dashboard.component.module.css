@@ -1,0 +1,374 @@
+/* Container and layout */
+.container {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 2rem;
+  }
+}
+
+/* Header styles */
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.subtitle {
+  color: #64748b;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+/* Section styles */
+.section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #1e293b;
+}
+
+/* Status cards grid */
+.statusGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .statusGrid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+.statusCardsContainer {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .statusCardsContainer {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+@media (min-width: 768px) {
+  .statusCardsContainer {
+    grid-column: span 2;
+  }
+}
+
+/* Status cards */
+.statusCard {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.statusCardAll {
+  outline: 2px solid var(--todo-color);
+}
+
+.statusCardPending {
+  outline: 2px solid var(--pending-color);
+}
+
+.statusCardCompleted {
+  outline: 2px solid var(--completed-color);
+  color: black;
+}
+
+.statusCardLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+  margin: 0;
+}
+
+.statusCardValue {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+/* Chart container */
+.chartContainer {
+  position: relative;
+  height: 250px;
+  width: 100%;
+  max-width: 300px;
+  min-width: 200px;
+  margin: auto;
+  overflow: visible;
+}
+
+.chartContainer canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Form styles */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background-color: white;
+}
+
+@media (min-width: 640px) {
+  .form {
+    flex-direction: row;
+  }
+}
+
+.input {
+  flex-grow: 1;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  transition: outline-color 0.2s;
+}
+
+.input:focus {
+  outline: 2px solid var(--newTodo-color);
+}
+
+.addButton {
+  background-color: var(--newTodo-color);
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.addButton:hover {
+  background-color: #8e3c10;
+}
+
+/* Task list header */
+.taskListHeader {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 640px) {
+  .taskListHeader {
+    flex-direction: row;
+  }
+}
+
+.taskListTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+}
+
+@media (min-width: 640px) {
+  .taskListTitle {
+    margin-bottom: 0;
+  }
+}
+
+/* Filter buttons */
+.filterContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filterBtn {
+  outline: 1px solid;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  border-radius: 1rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.filterBtnAll {
+  outline-color: var(--todo-color);
+}
+
+.filterBtnPending {
+  outline-color: var(--pending-color);
+}
+
+.filterBtnCompleted {
+  outline-color: var(--completed-color);
+}
+
+.filterBtnActive {
+  color: white;
+}
+
+.filterBtnActive.filterBtnAll {
+  background-color: var(--todo-color);
+}
+
+.filterBtnActive.filterBtnPending {
+  background-color: var(--pending-color);
+}
+
+.filterBtnActive.filterBtnCompleted {
+  background-color: var(--completed-color);
+}
+
+.filterBtn:not(.filterBtnActive):hover {
+  opacity: 0.8;
+}
+
+/* Task list */
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Task items */
+.taskItem {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  border: 1px solid #f1f5f9;
+  border-radius: 0.5rem;
+  transition: box-shadow 0.2s;
+  cursor: grab;
+  outline: 1px solid #d2d5d8;
+}
+
+.taskItem:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.taskItem:active {
+  cursor: grabbing;
+}
+
+.taskItemCompleted {
+  opacity: 0.7;
+}
+
+.dragHandle {
+  cursor: move;
+  margin-right: 0.75rem;
+  color: #94a3b8;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.dragHandle:hover {
+  color: #475569;
+}
+
+.taskCheckbox {
+  height: 1.25rem;
+  width: 1.25rem;
+  border-radius: 0.25rem;
+  border-color: #d1d5db;
+  color: #4f46e5;
+  margin-right: 1rem;
+  cursor: pointer;
+}
+
+.taskCheckbox:focus {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+.taskTitle {
+  flex-grow: 1;
+  cursor: pointer;
+}
+
+.taskTitleLineThrough {
+  text-decoration: line-through;
+}
+
+.deleteBtn {
+  color: #94a3b8;
+  margin-left: 1rem;
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.deleteBtn:hover {
+  color: #ef4444;
+}
+
+/* Empty state */
+.emptyState {
+  text-align: center;
+  padding: 3rem 0;
+  color: #64748b;
+}
+
+/* Drag and drop styles */
+.cdkDragPreview {
+  box-sizing: border-box;
+  border-radius: 0.5rem;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+    0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  background: white;
+}
+
+.cdkDragPlaceholder {
+  opacity: 0.4;
+  display: block;
+  background: #eef2ff;
+  border: 2px dashed #818cf8;
+  margin: 8px 0;
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdkDropListDragging .cdkDrag {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
