@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --completed-color: #27db0b;
-  --todo-color: #c00bdb;
-  --pending-color: #0b8fdb;
+  --completed-color: #009f42;
+  --todo-color: #f0ad4e;
+  --pending-color: #388cfa;
 }

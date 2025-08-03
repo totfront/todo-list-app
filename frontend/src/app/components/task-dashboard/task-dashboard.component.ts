@@ -92,6 +92,10 @@ export class TaskDashboardComponent implements OnInit, AfterViewInit {
     this.loadTodos();
   }
 
+  trackByTodoId(index: number, todo: Todo): number {
+    return todo.id;
+  }
+
   updateSummaryAndChart(): void {
     this.totalTasks = this.allTodos.length;
     this.completedTasks = this.allTodos.filter((todo) => todo.completed).length;
@@ -118,7 +122,7 @@ export class TaskDashboardComponent implements OnInit, AfterViewInit {
     this.chart = new Chart(this.chartRef.nativeElement, {
       type: 'doughnut',
       data: {
-        labels: ['Completed', 'Pending'],
+        labels: ['Completed:', 'Pending:'],
         datasets: [
           {
             data: [this.completedTasks, this.pendingTasks],
@@ -134,7 +138,42 @@ export class TaskDashboardComponent implements OnInit, AfterViewInit {
         cutout: '70%',
         plugins: {
           legend: { display: false },
-          tooltip: { enabled: true },
+          tooltip: {
+            enabled: true,
+            position: 'nearest',
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: 'white',
+            bodyColor: 'white',
+            borderColor: 'rgba(255, 255, 255, 0.2)',
+            borderWidth: 1,
+            cornerRadius: 8,
+            displayColors: false,
+            callbacks: {
+              label: function (context) {
+                const label = context.label || '';
+                const value = context.parsed;
+                const total = context.dataset.data.reduce(
+                  (a: number, b: number) => a + b,
+                  0
+                );
+                const percentage =
+                  total > 0 ? Math.round((value / total) * 100) : 0;
+                return `${value} (${percentage}%)`;
+              },
+            },
+          },
+        },
+        interaction: {
+          intersect: false,
+          mode: 'nearest',
+        },
+        layout: {
+          padding: {
+            top: 10,
+            bottom: 10,
+            left: 10,
+            right: 10,
+          },
         },
       },
     });
