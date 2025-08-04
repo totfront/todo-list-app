@@ -15,9 +15,9 @@ import { TodoService } from '../../services/todo.service';
 Chart.register(...registerables);
 
 @Component({
-  selector: 'app-task-dashboard',
-  templateUrl: './task-dashboard.component.html',
-  styleUrls: ['./task-dashboard.component.css'],
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css'],
   standalone: true,
   imports: [CommonModule, FormsModule, DragDropModule],
 })

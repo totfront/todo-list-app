@@ -2,12 +2,20 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
-import { TaskDashboardComponent } from './task-dashboard.component';
-import { TodoService } from '../../services/todo.service';
-import { Todo } from '../../models/todo.model';
+import { ElementRef } from '@angular/core';
+import { AppComponent } from './app.component';
+import { TodoService } from './services/todo.service';
+import { Todo } from './models/todo.model';
 
 // Shared mock objects
-const mockChartObject = {
+interface MockChart {
+  data: {
+    datasets: Array<{ data: number[] }>;
+  };
+  update: jest.Mock;
+}
+
+const mockChartObject: MockChart = {
   data: {
     datasets: [{ data: [0, 0] }],
   },
@@ -16,11 +24,11 @@ const mockChartObject = {
 
 const mockChartRef = {
   nativeElement: document.createElement('canvas'),
-} as any;
+} as ElementRef<HTMLCanvasElement>;
 
-describe('TaskDashboardComponent', () => {
-  let component: TaskDashboardComponent;
-  let fixture: ComponentFixture<TaskDashboardComponent>;
+describe('AppComponent', () => {
+  let component: AppComponent;
+  let fixture: ComponentFixture<AppComponent>;
   let todoService: jest.Mocked<TodoService>;
 
   const mockTodos: Todo[] = [
@@ -39,7 +47,7 @@ describe('TaskDashboardComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [TaskDashboardComponent, FormsModule, DragDropModule],
+      imports: [AppComponent, FormsModule, DragDropModule],
       providers: [{ provide: TodoService, useValue: mockTodoService }],
     }).compileComponents();
 
@@ -47,7 +55,7 @@ describe('TaskDashboardComponent', () => {
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(TaskDashboardComponent);
+    fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
     todoService.getTodos.mockReturnValue(mockTodos);
 
@@ -287,7 +295,7 @@ describe('TaskDashboardComponent', () => {
       (component as any).chart = {
         data: { datasets: [{ data: [] }] },
         update: jest.fn(),
-      };
+      } as MockChart;
 
       component.updateSummaryAndChart();
 
@@ -296,7 +304,7 @@ describe('TaskDashboardComponent', () => {
     });
 
     it('should not update chart when chart does not exist', () => {
-      (component as any).chart = undefined;
+      (component as any).chart = undefined as any;
 
       expect(() => component.updateSummaryAndChart()).not.toThrow();
     });

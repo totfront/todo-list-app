@@ -18,3 +18,12 @@ I hope it will help you to do you todos.
 - Angular JS
 - CSS modules
 - NestJS
+
+### Todo
+
+1. fix tests ✅
+2. cleanup comments
+3. BE
+4. Hover on all, pending, completed elements
+5. FE unit tests improvements:
+   1. Update deprecated methods: BrowserDynamicTestingModule, platformBrowserDynamicTesting

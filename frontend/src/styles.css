@@ -17,9 +17,9 @@ body {
   color: #1e293b;
 }
 
-button,
 input {
   font-family: monospace, sans-serif;
+  background-color: white;
 }
 
 :root {
@@ -27,6 +27,7 @@ input {
   --todo-color: #f0ad4e;
   --pending-color: #388cfa;
   --newTodo-color: #9e17b3;
+  --btn-shadow: 3px 3px 0px 0px rgb(79, 75, 75);
 }
 
 /* Prevent scrolling on very small screens */

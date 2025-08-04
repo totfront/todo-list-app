@@ -1,4 +1,22 @@
-/* Small screen message */
+.messageContent {
+  padding: 2rem;
+  max-width: 280px;
+}
+
+.messageContent {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+
+.messageContent p {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+  margin-top: 0;
+}
+
 .smallScreenMessage {
   display: none;
   position: fixed;
@@ -14,54 +32,26 @@
   color: white;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
-}
 
-.messageContent {
-  padding: 2rem;
-  max-width: 280px;
-}
-
-.messageContent h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  margin-top: 0;
-}
-
-.messageContent p {
-  font-size: 0.875rem;
-  line-height: 1.5;
-  margin-bottom: 0.75rem;
-  margin-top: 0;
-}
-
-/* Show small screen message on screens smaller than 300px */
-@media (max-width: 299px) {
-  .smallScreenMessage {
+  @media (max-width: 299px) {
     display: flex;
   }
 }
 
-/* Container and layout */
 .container {
   max-width: 64rem;
   margin: 0 auto;
   padding: 1rem;
-}
 
-@media (min-width: 640px) {
-  .container {
+  @media (min-width: 640px) {
     padding: 1.5rem;
   }
-}
 
-@media (min-width: 768px) {
-  .container {
+  @media (min-width: 768px) {
     padding: 2rem;
   }
 }
 
-/* Header styles */
 .header {
   text-align: center;
   margin-bottom: 2rem;
@@ -80,7 +70,6 @@
   margin-bottom: 0;
 }
 
-/* Section styles */
 .section {
   margin-bottom: 2rem;
   padding: 1.5rem;
@@ -96,16 +85,13 @@
   color: #1e293b;
 }
 
-/* Status cards grid */
 .statusGrid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
   align-items: center;
-}
 
-@media (min-width: 768px) {
-  .statusGrid {
+  @media (min-width: 768px) {
     grid-template-columns: 1fr 1fr 1fr;
   }
 }
@@ -115,21 +101,16 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
-}
 
-@media (min-width: 640px) {
-  .statusCardsContainer {
+  @media (min-width: 640px) {
     grid-template-columns: 1fr 1fr 1fr;
   }
-}
 
-@media (min-width: 768px) {
-  .statusCardsContainer {
+  @media (min-width: 768px) {
     grid-column: span 2;
   }
 }
 
-/* Status cards */
 .statusCard {
   padding: 1rem;
   border-radius: 0.5rem;
@@ -166,7 +147,6 @@
   margin: 0;
 }
 
-/* Chart container */
 .chartContainer {
   position: relative;
   height: 250px;
@@ -182,16 +162,14 @@
   height: auto;
 }
 
-/* Form styles */
 .form {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 0.75rem;
   background-color: white;
-}
 
-@media (min-width: 640px) {
-  .form {
+  @media (min-width: 640px) {
     flex-direction: row;
   }
 }
@@ -202,42 +180,39 @@
   border: 1px solid #e2e8f0;
   border-radius: 0.5rem;
   transition: outline-color 0.2s;
-}
 
-.input:focus {
-  outline: 2px solid #3390ff;
+  &:focus {
+    outline: 2px solid #3390ff;
+  }
 }
 
 .addButton {
-  background-color: var(--newTodo-color);
-  color: white;
+  border: 1px solid var(--newTodo-color);
   font-weight: 600;
-  padding: 0.75rem 1.5rem;
-  border-radius: 1rem;
-  border: none;
+  border-radius: 0.5rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  background-color: white;
+  transition: all 0.2s;
+  padding: 0.5rem 1rem;
+  height: 39px;
+
+  &:hover {
+    box-shadow: var(--btn-shadow);
+  }
+
+  &:focus {
+    outline: 2px solid #3390ff;
+  }
 }
 
-.addButton:hover {
-  background-color: #8e3c10;
-}
-
-.addButton:focus {
-  outline: 2px solid #3390ff;
-}
-
-/* Task list header */
 .taskListHeader {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
-}
 
-@media (min-width: 640px) {
-  .taskListHeader {
+  @media (min-width: 640px) {
     flex-direction: row;
   }
 }
@@ -247,15 +222,12 @@
   font-weight: 600;
   color: #1e293b;
   margin: 0 0 0.5rem 0;
-}
 
-@media (min-width: 640px) {
-  .taskListTitle {
+  @media (min-width: 640px) {
     margin-bottom: 0;
   }
 }
 
-/* Filter buttons */
 .filterContainer {
   display: flex;
   align-items: center;
@@ -263,31 +235,43 @@
 }
 
 .filterBtn {
-  outline: 1px solid;
-  padding: 0.5rem 1rem;
+  border: 1px solid;
   font-size: 0.875rem;
+  padding: 0.5rem 1rem;
   font-weight: 500;
   transition: all 0.2s;
-  border-radius: 1rem;
-  border: none;
+  border-radius: 0.5rem;
   background: transparent;
   cursor: pointer;
-}
+  height: 39px;
 
-.filterBtn:focus {
-  outline: 2px solid #3390ff;
+  &:hover {
+    box-shadow: var(--btn-shadow);
+  }
 }
 
 .filterBtnAll {
-  outline-color: var(--todo-color);
+  border-color: var(--todo-color);
+
+  &:hover {
+    background-color: var(--todo-color);
+  }
 }
 
 .filterBtnPending {
-  outline-color: var(--pending-color);
+  border-color: var(--pending-color);
+
+  &:hover {
+    background-color: var(--pending-color);
+  }
 }
 
 .filterBtnCompleted {
-  outline-color: var(--completed-color);
+  border-color: var(--completed-color);
+
+  &:hover {
+    background-color: var(--completed-color);
+  }
 }
 
 .filterBtnActive {
@@ -306,18 +290,12 @@
   background-color: var(--completed-color);
 }
 
-.filterBtn:not(.filterBtnActive):hover {
-  opacity: 0.8;
-}
-
-/* Task list */
 .taskList {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-/* Task items */
 .taskItem {
   display: flex;
   align-items: center;
@@ -325,17 +303,13 @@
   border: 1px solid #f1f5f9;
   background-color: white;
   border-radius: 0.5rem;
-  transition: box-shadow 0.2s;
+  transition: all 0.2s;
   cursor: grab;
   outline: 1px solid #d2d5d8;
-}
 
-.taskItem:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.taskItem:active {
-  cursor: grabbing;
+  &:active {
+    cursor: grabbing;
+  }
 }
 
 .taskItemCompleted {
@@ -351,10 +325,10 @@
   padding: 0;
   font-size: 1.5rem;
   line-height: 1;
-}
 
-.dragHandle:hover {
-  color: #475569;
+  &:hover {
+    color: #475569;
+  }
 }
 
 .taskCheckbox {
@@ -386,13 +360,12 @@
   font-size: 1.5rem;
   line-height: 1;
   cursor: pointer;
+
+  &:hover {
+    color: #ef4444;
+  }
 }
 
-.deleteBtn:hover {
-  color: #ef4444;
-}
-
-/* Empty state */
 .emptyState {
   text-align: center;
   padding: 3rem 0;
