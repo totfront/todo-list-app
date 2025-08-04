@@ -17,7 +17,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-task-dashboard',
   templateUrl: './task-dashboard.component.html',
-  styleUrls: ['./task-dashboard.component.module.css'],
+  styleUrls: ['./task-dashboard.component.css'],
   standalone: true,
   imports: [CommonModule, FormsModule, DragDropModule],
 })
@@ -52,9 +52,11 @@ export class TaskDashboardComponent implements OnInit, AfterViewInit {
   applyFilter(): void {
     if (this.currentFilter === 'pending') {
       this.filteredTodos = this.allTodos.filter((todo) => !todo.completed);
-    } else if (this.currentFilter === 'completed') {
+    }
+    if (this.currentFilter === 'completed') {
       this.filteredTodos = this.allTodos.filter((todo) => todo.completed);
-    } else {
+    }
+    if (this.currentFilter === 'all') {
       this.filteredTodos = [...this.allTodos];
     }
     this.updateSummaryAndChart();
@@ -106,12 +108,11 @@ export class TaskDashboardComponent implements OnInit, AfterViewInit {
         this.completedTasks,
         this.pendingTasks,
       ];
-      this.chart.update('none');
+      this.chart?.update('none');
     }
   }
 
   createChart(): void {
-    // Get CSS custom properties
     const completedColor = getComputedStyle(document.documentElement)
       .getPropertyValue('--completed-color')
       .trim();
@@ -150,7 +151,6 @@ export class TaskDashboardComponent implements OnInit, AfterViewInit {
             displayColors: false,
             callbacks: {
               label: function (context) {
-                const label = context.label || '';
                 const value = context.parsed;
                 const total = context.dataset.data.reduce(
                   (a: number, b: number) => a + b,

@@ -1,35 +1,7 @@
 <main class="container">
   <header class="header">
-    <h1 class="title">Todo tracker 📋 ✅</h1>
+    <h1 class="title">Todo tracker 📋&nbsp;✅</h1>
   </header>
-
-  <section class="section">
-    <div class="statusGrid">
-      <div class="statusCardsContainer">
-        <article class="statusCard statusCardAll">
-          <p class="statusCardLabel">All</p>
-          <span class="statusCardValue" aria-label="Total tasks">{{
-            totalTasks
-          }}</span>
-        </article>
-        <article class="statusCard statusCardPending">
-          <p class="statusCardLabel">Pending</p>
-          <span class="statusCardValue" aria-label="Pending tasks">{{
-            pendingTasks
-          }}</span>
-        </article>
-        <article class="statusCard statusCardCompleted">
-          <p class="statusCardLabel">Completed</p>
-          <span class="statusCardValue" aria-label="Completed tasks">{{
-            completedTasks
-          }}</span>
-        </article>
-      </div>
-      <div class="chartContainer">
-        <canvas #completionChart aria-label="Task completion chart"></canvas>
-      </div>
-    </div>
-  </section>
 
   <!-- Add Task Section -->
   <section class="section">
@@ -163,4 +135,41 @@
       No tasks here. Add one to get started!
     </p>
   </section>
+
+  <!-- Status section -->
+  <section class="section">
+    <div class="statusGrid">
+      <div class="statusCardsContainer">
+        <article class="statusCard statusCardAll">
+          <p class="statusCardLabel">All</p>
+          <span class="statusCardValue" aria-label="Total tasks">{{
+            totalTasks
+          }}</span>
+        </article>
+        <article class="statusCard statusCardPending">
+          <p class="statusCardLabel">Pending</p>
+          <span class="statusCardValue" aria-label="Pending tasks">{{
+            pendingTasks
+          }}</span>
+        </article>
+        <article class="statusCard statusCardCompleted">
+          <p class="statusCardLabel">Completed</p>
+          <span class="statusCardValue" aria-label="Completed tasks">{{
+            completedTasks
+          }}</span>
+        </article>
+      </div>
+      <div class="chartContainer">
+        <canvas #completionChart aria-label="Task completion chart"></canvas>
+      </div>
+    </div>
+  </section>
 </main>
+
+<div class="smallScreenMessage">
+  <div class="messageContent">
+    <h1>📱 Screen Too Small</h1>
+    <p>We do not support screens smaller than 300px width.</p>
+    <p>Please use a larger device or resize your browser window.</p>
+  </div>
+</div>
