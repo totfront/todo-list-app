@@ -4,6 +4,7 @@ import {
   ViewChild,
   ElementRef,
   AfterViewInit,
+  OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +12,7 @@ import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Chart, registerables } from 'chart.js';
 import { Todo } from './models/todo.model';
 import { TodoService } from './services/todo.service';
+import { Subscription } from 'rxjs';
 
 Chart.register(...registerables);
 
@@ -21,9 +23,10 @@ Chart.register(...registerables);
   standalone: true,
   imports: [CommonModule, FormsModule, DragDropModule],
 })
-export class AppComponent implements OnInit, AfterViewInit {
+export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('completionChart') private chartRef!: ElementRef;
   private chart!: Chart;
+  private todosSubscription!: Subscription;
 
   allTodos: Todo[] = [];
   filteredTodos: Todo[] = [];
@@ -37,16 +40,23 @@ export class AppComponent implements OnInit, AfterViewInit {
   constructor(private todoService: TodoService) {}
 
   ngOnInit(): void {
-    this.loadTodos();
+    this.todosSubscription = this.todoService.getTodos().subscribe({
+      next: (todos) => {
+        this.allTodos = todos;
+        this.applyFilter();
+      },
+      error: (error) => console.error('Error loading todos:', error),
+    });
   }
 
   ngAfterViewInit(): void {
     this.createChart();
   }
 
-  loadTodos(): void {
-    this.allTodos = this.todoService.getTodos();
-    this.applyFilter();
+  ngOnDestroy(): void {
+    if (this.todosSubscription) {
+      this.todosSubscription.unsubscribe();
+    }
   }
 
   applyFilter(): void {
@@ -69,29 +79,36 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   addTask(): void {
     if (this.newTodoTitle.trim()) {
-      this.todoService.addTodo(this.newTodoTitle.trim());
-      this.newTodoTitle = '';
-      this.loadTodos();
+      this.todoService.addTodo(this.newTodoTitle.trim()).subscribe({
+        next: () => {
+          this.newTodoTitle = '';
+        },
+        error: (error) => console.error('Error adding todo:', error),
+      });
     }
   }
 
   toggleCompletion(id: number): void {
-    this.todoService.toggleTodoCompletion(id);
-    this.loadTodos();
+    this.todoService.toggleTodoCompletion(id).subscribe({
+      error: (error) => console.error('Error toggling todo:', error),
+    });
   }
 
   deleteTask(id: number): void {
-    this.todoService.deleteTodo(id);
-    this.loadTodos();
+    this.todoService.deleteTodo(id).subscribe({
+      error: (error) => console.error('Error deleting todo:', error),
+    });
   }
 
   drop(event: CdkDragDrop<Todo[]>): void {
-    this.todoService.reorderTodos(
-      this.allTodos,
-      event.previousIndex,
-      event.currentIndex
-    );
-    this.loadTodos();
+    const reorderedTodos = [...this.allTodos];
+    const movedItem = reorderedTodos[event.previousIndex];
+    reorderedTodos.splice(event.previousIndex, 1);
+    reorderedTodos.splice(event.currentIndex, 0, movedItem);
+
+    this.todoService.reorderTodos(reorderedTodos).subscribe({
+      error: (error) => console.error('Error reordering todos:', error),
+    });
   }
 
   trackByTodoId(index: number, todo: Todo): number {
