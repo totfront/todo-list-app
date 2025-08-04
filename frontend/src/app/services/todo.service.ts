@@ -1,76 +1,85 @@
 import { Injectable } from '@angular/core';
-import { moveItemInArray } from '@angular/cdk/drag-drop';
-import { Todo } from '../models/todo.model';
+import { HttpClient } from '@angular/common/http';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { Todo, CreateTodoDto, UpdateTodoDto } from '../models/todo.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TodoService {
-  private todos: Todo[] = [
-    {
-      id: 1,
-      title: 'Set up interactive dashboard structure',
-      completed: true,
-      order: 1,
-    },
-    {
-      id: 2,
-      title: 'Implement dynamic summary widgets',
-      completed: true,
-      order: 2,
-    },
-    {
-      id: 3,
-      title: 'Add task creation functionality',
-      completed: false,
-      order: 3,
-    },
-    {
-      id: 4,
-      title: 'Enable task filtering and completion',
-      completed: false,
-      order: 4,
-    },
-    {
-      id: 5,
-      title: 'Implement drag-and-drop reordering',
-      completed: false,
-      order: 5,
-    },
-  ];
+  private apiUrl = 'http://localhost:3000/todos';
+  private todosSubject = new BehaviorSubject<Todo[]>([]);
+  public todos$ = this.todosSubject.asObservable();
 
-  constructor() {}
-
-  getTodos(): Todo[] {
-    return this.todos;
+  constructor(private http: HttpClient) {
+    this.loadTodos();
   }
 
-  addTodo(title: string): void {
-    const newTodo: Todo = {
-      id: Date.now(),
-      title: title,
-      completed: false,
-      order: this.todos.length + 1,
-    };
-    this.todos.unshift(newTodo);
+  private loadTodos(): void {
+    this.http.get<Todo[]>(this.apiUrl).subscribe({
+      next: (todos) => this.todosSubject.next(todos),
+      error: (error) => console.error('Error loading todos:', error),
+    });
   }
 
-  deleteTodo(id: number): void {
-    this.todos = this.todos.filter((todo) => todo.id !== id);
+  getTodos(): Observable<Todo[]> {
+    return this.todos$;
   }
 
-  toggleTodoCompletion(id: number): void {
-    const todo = this.todos.find((t) => t.id === id);
-    if (todo) {
-      todo.completed = !todo.completed;
-    }
+  addTodo(title: string): Observable<Todo> {
+    const createTodoDto: CreateTodoDto = { title };
+    return this.http.post<Todo>(this.apiUrl, createTodoDto).pipe(
+      tap((newTodo) => {
+        const currentTodos = this.todosSubject.value;
+        this.todosSubject.next([newTodo, ...currentTodos]);
+      })
+    );
   }
 
-  reorderTodos(
-    todos: Todo[],
-    previousIndex: number,
-    currentIndex: number
-  ): void {
-    moveItemInArray(todos, previousIndex, currentIndex);
+  deleteTodo(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      tap(() => {
+        const currentTodos = this.todosSubject.value;
+        const updatedTodos = currentTodos.filter((todo) => todo.id !== id);
+        this.todosSubject.next(updatedTodos);
+      })
+    );
+  }
+
+  toggleTodoCompletion(id: number): Observable<Todo> {
+    return this.http.patch<Todo>(`${this.apiUrl}/${id}/toggle`, {}).pipe(
+      tap((updatedTodo) => {
+        const currentTodos = this.todosSubject.value;
+        const updatedTodos = currentTodos.map((todo) =>
+          todo.id === id ? updatedTodo : todo
+        );
+        this.todosSubject.next(updatedTodos);
+      })
+    );
+  }
+
+  updateTodo(id: number, updateDto: UpdateTodoDto): Observable<Todo> {
+    return this.http.patch<Todo>(`${this.apiUrl}/${id}`, updateDto).pipe(
+      tap((updatedTodo) => {
+        const currentTodos = this.todosSubject.value;
+        const updatedTodos = currentTodos.map((todo) =>
+          todo.id === id ? updatedTodo : todo
+        );
+        this.todosSubject.next(updatedTodos);
+      })
+    );
+  }
+
+  reorderTodos(todos: Todo[]): Observable<Todo[]> {
+    return this.http.post<Todo[]>(`${this.apiUrl}/reorder`, todos).pipe(
+      tap((updatedTodos) => {
+        this.todosSubject.next(updatedTodos);
+      })
+    );
+  }
+
+  refreshTodos(): void {
+    this.loadTodos();
   }
 }
