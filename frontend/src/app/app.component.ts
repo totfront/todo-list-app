@@ -140,7 +140,8 @@ export class AppComponent implements OnInit, OnDestroy {
         this.loadTodos();
       },
       error: (error) => {
-        console.error(this.handleError(error, 'toggle todo completion'));
+        this.fetchError = this.handleError(error, 'toggle todo completion');
+        console.error(this.fetchError);
       },
     });
   }
