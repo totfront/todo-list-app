@@ -34,20 +34,6 @@ db.serialize(() => {
   `);
 });
 
-// Helper function to update the updatedAt timestamp
-function updateTimestamp(id) {
-  return new Promise((resolve, reject) => {
-    db.run(
-      "UPDATE todos SET updatedAt = CURRENT_TIMESTAMP WHERE id = ?",
-      [id],
-      function (err) {
-        if (err) reject(err);
-        else resolve();
-      }
-    );
-  });
-}
-
 // GET /todos - Get all todos
 app.get("/todos", (req, res) => {
   db.all("SELECT * FROM todos ORDER BY createdAt ASC", [], (err, rows) => {
@@ -57,7 +43,6 @@ app.get("/todos", (req, res) => {
       return;
     }
 
-    // Convert boolean values
     const todos = rows.map((row) => ({
       id: row.id,
       title: row.title,
@@ -88,7 +73,6 @@ app.post("/todos", (req, res) => {
         return;
       }
 
-      // Get the created todo
       db.get("SELECT * FROM todos WHERE id = ?", [this.lastID], (err, row) => {
         if (err) {
           console.error("Error fetching created todo:", err);
@@ -158,7 +142,6 @@ app.patch("/todos/:id", (req, res) => {
         return res.status(404).json({ error: "Todo not found" });
       }
 
-      // Get the updated todo
       db.get("SELECT * FROM todos WHERE id = ?", [id], (err, row) => {
         if (err) {
           console.error("Error fetching updated todo:", err);
@@ -207,7 +190,6 @@ app.patch("/todos/:id/toggle", (req, res) => {
           return;
         }
 
-        // Get the updated todo
         db.get("SELECT * FROM todos WHERE id = ?", [id], (err, row) => {
           if (err) {
             console.error("Error fetching toggled todo:", err);
@@ -249,19 +231,16 @@ app.delete("/todos/:id", (req, res) => {
   });
 });
 
-// Test error endpoint for debugging
 app.get("/todos/test-error", (req, res) => {
   res
     .status(500)
     .json({ error: "🧪 Test error message from Express backend!" });
 });
 
-// Health check endpoint
 app.get("/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
-// Start server
 app.listen(PORT, () => {
   console.log(
     `🚀 Express.js backend server running on http://localhost:${PORT}`
@@ -269,7 +248,6 @@ app.listen(PORT, () => {
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
 });
 
-// Graceful shutdown
 process.on("SIGINT", () => {
   console.log("\n🛑 Shutting down server...");
   db.close((err) => {

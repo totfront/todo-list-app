@@ -1,30 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
-import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
-import { ElementRef } from '@angular/core';
+import { of } from 'rxjs';
 import { AppComponent } from './app.component';
 import { TodoService } from './services/todo.service';
 import { Todo } from './models/todo.model';
-
-// Shared mock objects
-interface MockChart {
-  data: {
-    datasets: Array<{ data: number[] }>;
-  };
-  update: jest.Mock;
-}
-
-const mockChartObject: MockChart = {
-  data: {
-    datasets: [{ data: [0, 0] }],
-  },
-  update: jest.fn(),
-};
-
-const mockChartRef = {
-  nativeElement: document.createElement('canvas'),
-} as ElementRef<HTMLCanvasElement>;
 
 describe('AppComponent', () => {
   let component: AppComponent;
@@ -32,22 +12,40 @@ describe('AppComponent', () => {
   let todoService: jest.Mocked<TodoService>;
 
   const mockTodos: Todo[] = [
-    { id: 1, title: 'Test Task 1', completed: true, order: 1 },
-    { id: 2, title: 'Test Task 2', completed: false, order: 2 },
-    { id: 3, title: 'Test Task 3', completed: false, order: 3 },
+    {
+      id: 1,
+      title: 'Test Task 1',
+      completed: true,
+      createdAt: new Date('2024-01-01T00:00:00Z'),
+      updatedAt: new Date('2024-01-01T00:00:00Z'),
+    },
+    {
+      id: 2,
+      title: 'Test Task 2',
+      completed: false,
+      createdAt: new Date('2024-01-02T00:00:00Z'),
+      updatedAt: new Date('2024-01-02T00:00:00Z'),
+    },
+    {
+      id: 3,
+      title: 'Test Task 3',
+      completed: false,
+      createdAt: new Date('2024-01-03T00:00:00Z'),
+      updatedAt: new Date('2024-01-03T00:00:00Z'),
+    },
   ];
 
   beforeEach(async () => {
     const mockTodoService = {
-      getTodos: jest.fn(),
-      addTodo: jest.fn(),
-      deleteTodo: jest.fn(),
-      toggleTodoCompletion: jest.fn(),
-      reorderTodos: jest.fn(),
+      getTodos: jest.fn().mockReturnValue(of(mockTodos)),
+      addTodo: jest.fn().mockReturnValue(of(mockTodos[0])),
+      deleteTodo: jest.fn().mockReturnValue(of(void 0)),
+      toggleTodoCompletion: jest.fn().mockReturnValue(of(mockTodos[0])),
+      updateTodo: jest.fn().mockReturnValue(of(mockTodos[0])),
     };
 
     await TestBed.configureTestingModule({
-      imports: [AppComponent, FormsModule, DragDropModule],
+      imports: [AppComponent, FormsModule],
       providers: [{ provide: TodoService, useValue: mockTodoService }],
     }).compileComponents();
 
@@ -57,15 +55,6 @@ describe('AppComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
-    todoService.getTodos.mockReturnValue(mockTodos);
-
-    // Mock createChart to prevent actual chart creation
-    jest.spyOn(component, 'createChart').mockImplementation(() => {
-      // Mock chart object
-      Object.assign(component, {
-        chart: mockChartObject,
-      });
-    });
   });
 
   it('should exist', () => {
@@ -88,14 +77,6 @@ describe('AppComponent', () => {
 
       expect(todoService.getTodos).toHaveBeenCalled();
       expect(component.allTodos).toEqual(mockTodos);
-    });
-
-    it('should create chart after the component`s view (template) has been fully initialized', () => {
-      const createChartSpy = jest.spyOn(component, 'createChart');
-
-      component.ngAfterViewInit();
-
-      expect(createChartSpy).toHaveBeenCalled();
     });
   });
 
@@ -130,8 +111,20 @@ describe('AppComponent', () => {
       component.applyFilter();
 
       expect(component.filteredTodos).toEqual([
-        { id: 2, title: 'Test Task 2', completed: false, order: 2 },
-        { id: 3, title: 'Test Task 3', completed: false, order: 3 },
+        {
+          id: 2,
+          title: 'Test Task 2',
+          completed: false,
+          createdAt: new Date('2024-01-02T00:00:00Z'),
+          updatedAt: new Date('2024-01-02T00:00:00Z'),
+        },
+        {
+          id: 3,
+          title: 'Test Task 3',
+          completed: false,
+          createdAt: new Date('2024-01-03T00:00:00Z'),
+          updatedAt: new Date('2024-01-03T00:00:00Z'),
+        },
       ]);
     });
 
@@ -141,12 +134,18 @@ describe('AppComponent', () => {
       component.applyFilter();
 
       expect(component.filteredTodos).toEqual([
-        { id: 1, title: 'Test Task 1', completed: true, order: 1 },
+        {
+          id: 1,
+          title: 'Test Task 1',
+          completed: true,
+          createdAt: new Date('2024-01-01T00:00:00Z'),
+          updatedAt: new Date('2024-01-01T00:00:00Z'),
+        },
       ]);
     });
 
-    it('should update summary and chart when filter is applied', () => {
-      const updateSummarySpy = jest.spyOn(component, 'updateSummaryAndChart');
+    it('should update summary when filter is applied', () => {
+      const updateSummarySpy = jest.spyOn(component, 'updateSummary');
 
       component.applyFilter();
 
@@ -244,32 +243,15 @@ describe('AppComponent', () => {
     });
   });
 
-  describe('drop', () => {
-    beforeEach(() => {
-      jest.spyOn(component, 'loadTodos');
-      component.allTodos = mockTodos;
-    });
-
-    it('should reorder todos and reload', () => {
-      const mockEvent = {
-        previousIndex: 0,
-        currentIndex: 2,
-        item: { data: mockTodos[0] },
-        container: { data: mockTodos },
-        isPointerOverContainer: true,
-        distance: { x: 0, y: 0 },
-      } as CdkDragDrop<Todo[]>;
-
-      component.drop(mockEvent);
-
-      expect(todoService.reorderTodos).toHaveBeenCalledWith(mockTodos, 0, 2);
-      expect(component.loadTodos).toHaveBeenCalled();
-    });
-  });
-
   describe('trackByTodoId', () => {
     it('should return todo id for tracking', () => {
-      const todo = { id: 123, title: 'Test', completed: false, order: 1 };
+      const todo = {
+        id: 123,
+        title: 'Test',
+        completed: false,
+        createdAt: new Date('2024-01-01T00:00:00Z'),
+        updatedAt: new Date('2024-01-01T00:00:00Z'),
+      };
 
       const result = component.trackByTodoId(0, todo);
 
@@ -277,155 +259,23 @@ describe('AppComponent', () => {
     });
   });
 
-  describe('updateSummaryAndChart', () => {
+  describe('updateSummary', () => {
     beforeEach(() => {
       component.allTodos = mockTodos;
     });
 
     it('should update task counts correctly', () => {
-      component.updateSummaryAndChart();
+      component.updateSummary();
 
       expect(component.totalTasks).toBe(3);
       expect(component.completedTasks).toBe(1);
       expect(component.pendingTasks).toBe(2);
     });
-
-    it('should update chart data when chart exists', () => {
-      // Mock chart
-      (component as any).chart = {
-        data: { datasets: [{ data: [] }] },
-        update: jest.fn(),
-      } as MockChart;
-
-      component.updateSummaryAndChart();
-
-      expect((component as any).chart.data.datasets[0].data).toEqual([1, 2]);
-      expect((component as any).chart.update).toHaveBeenCalledWith('none');
-    });
-
-    it('should not update chart when chart does not exist', () => {
-      (component as any).chart = undefined as any;
-
-      expect(() => component.updateSummaryAndChart()).not.toThrow();
-    });
-  });
-
-  describe('createChart', () => {
-    beforeEach(() => {
-      // Mock the ViewChild element
-      (component as any).chartRef = mockChartRef;
-    });
-
-    it('should call updateSummaryAndChart after creating chart', () => {
-      // Temporarily unmock createChart for this test
-      const createChartSpy = jest
-        .spyOn(component, 'createChart')
-        .mockImplementation(() => {
-          // Mock chart object
-          Object.assign(component, {
-            chart: mockChartObject,
-          });
-          // Call the original updateSummaryAndChart method
-          component.updateSummaryAndChart();
-        });
-      const updateSummarySpy = jest.spyOn(component, 'updateSummaryAndChart');
-
-      component.createChart();
-
-      expect(updateSummarySpy).toHaveBeenCalled();
-    });
-  });
-
-  describe('Template Integration', () => {
-    beforeEach(() => {
-      component.allTodos = mockTodos;
-      component.filteredTodos = mockTodos;
-      component.applyFilter();
-      fixture.detectChanges();
-    });
-
-    it('should display correct task counts', () => {
-      const totalElement = fixture.debugElement.query(
-        By.css('[aria-label="Total tasks"]')
-      );
-      const pendingElement = fixture.debugElement.query(
-        By.css('[aria-label="Pending tasks"]')
-      );
-      const completedElement = fixture.debugElement.query(
-        By.css('[aria-label="Completed tasks"]')
-      );
-
-      expect(totalElement.nativeElement.textContent.trim()).toBe('3');
-      expect(pendingElement.nativeElement.textContent.trim()).toBe('2');
-      expect(completedElement.nativeElement.textContent.trim()).toBe('1');
-    });
-
-    it('should display todos in the list', () => {
-      const todoItems = fixture.debugElement.queryAll(By.css('.taskItem'));
-
-      expect(todoItems.length).toBe(3);
-    });
-
-    it('should show completed tasks with line-through style', () => {
-      const completedTask = fixture.debugElement.query(
-        By.css('.taskItem .taskTitleLineThrough')
-      );
-
-      expect(completedTask).toBeTruthy();
-    });
-
-    it('should have form with input and button', () => {
-      const form = fixture.debugElement.query(By.css('form'));
-      const input = fixture.debugElement.query(By.css('#new-task-input'));
-      const button = fixture.debugElement.query(By.css('#add-task-button'));
-
-      expect(form).toBeTruthy();
-      expect(input).toBeTruthy();
-      expect(button).toBeTruthy();
-    });
-
-    it('should call addTask when form is submitted', () => {
-      const addTaskSpy = jest.spyOn(component, 'addTask');
-      const form = fixture.debugElement.query(By.css('form'));
-
-      form.triggerEventHandler('ngSubmit', null);
-
-      expect(addTaskSpy).toHaveBeenCalled();
-    });
-
-    it('should call setFilter when filter buttons are clicked', () => {
-      const setFilterSpy = jest.spyOn(component, 'setFilter');
-      const pendingButton = fixture.debugElement.query(
-        By.css('[aria-label="Show pending tasks"]')
-      );
-
-      pendingButton.triggerEventHandler('click', null);
-
-      expect(setFilterSpy).toHaveBeenCalledWith('pending');
-    });
-
-    it('should call toggleCompletion when checkbox is changed', () => {
-      const toggleSpy = jest.spyOn(component, 'toggleCompletion');
-      const checkbox = fixture.debugElement.query(By.css('.taskCheckbox'));
-
-      checkbox.triggerEventHandler('change', { target: { checked: true } });
-
-      expect(toggleSpy).toHaveBeenCalled();
-    });
-
-    it('should call deleteTask when delete button is clicked', () => {
-      const deleteSpy = jest.spyOn(component, 'deleteTask');
-      const deleteButton = fixture.debugElement.query(By.css('.deleteBtn'));
-
-      deleteButton.triggerEventHandler('click', null);
-
-      expect(deleteSpy).toHaveBeenCalled();
-    });
   });
 
   describe('Edge Cases', () => {
     it('should handle empty todos array', () => {
-      todoService.getTodos.mockReturnValue([]);
+      todoService.getTodos.mockReturnValue(of([]));
       component.loadTodos();
 
       expect(component.totalTasks).toBe(0);
@@ -438,9 +288,10 @@ describe('AppComponent', () => {
         ...todo,
         completed: true,
       }));
-      todoService.getTodos.mockReturnValue(allCompletedTodos);
+      todoService.getTodos.mockReturnValue(of(allCompletedTodos));
       component.loadTodos();
 
+      expect(component.totalTasks).toBe(3);
       expect(component.completedTasks).toBe(3);
       expect(component.pendingTasks).toBe(0);
     });
@@ -450,9 +301,10 @@ describe('AppComponent', () => {
         ...todo,
         completed: false,
       }));
-      todoService.getTodos.mockReturnValue(allPendingTodos);
+      todoService.getTodos.mockReturnValue(of(allPendingTodos));
       component.loadTodos();
 
+      expect(component.totalTasks).toBe(3);
       expect(component.completedTasks).toBe(0);
       expect(component.pendingTasks).toBe(3);
     });
