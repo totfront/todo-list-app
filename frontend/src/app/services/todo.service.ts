@@ -9,9 +9,7 @@ import { Todo, CreateTodoDto, UpdateTodoDto } from '../models/todo.model';
 export class TodoService {
   private apiUrl = 'http://localhost:3000/todos';
 
-  constructor(private http: HttpClient) {
-    // Don't auto-load todos - let components handle when to load
-  }
+  constructor(private http: HttpClient) {}
 
   getTodos(): Observable<Todo[]> {
     return this.http.get<Todo[]>(this.apiUrl);
