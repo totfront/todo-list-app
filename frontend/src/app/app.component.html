@@ -32,8 +32,29 @@
     </form>
   </section>
 
+  <!-- Loading State -->
+  <section *ngIf="isLoading" class="section">
+    <div class="loadingSpinner"></div>
+  </section>
+
+  <!-- Error State -->
+  <section *ngIf="fetchError" class="section">
+    <div class="errorContainer">
+      <h3 class="errorTitle">Connection Error</h3>
+      <p class="errorText">{{ fetchError }}</p>
+      <div class="errorActions">
+        <button (click)="retryLoad()" class="retryButton">
+          🔄 Retry Connection
+        </button>
+        <button (click)="fetchError = ''" class="dismissButton">
+          ✕ Dismiss
+        </button>
+      </div>
+    </div>
+  </section>
+
   <!-- Task List Section -->
-  <section class="section">
+  <section *ngIf="!isLoading && !fetchError" class="section">
     <header class="taskListHeader">
       <h2 class="taskListTitle">Your todos</h2>
       <nav aria-label="Task filter options">
@@ -78,35 +99,19 @@
       </nav>
     </header>
 
-    <div
-      cdkDropList
-      [cdkDropListData]="allTodos"
-      (cdkDropListDropped)="drop($event)"
-      class="taskList"
-      role="list"
-      aria-label="Task list"
-    >
+    <div class="taskList" role="list" aria-label="Task list">
       <article
         *ngFor="let todo of filteredTodos; trackBy: trackByTodoId"
-        cdkDrag
-        [cdkDragData]="todo"
         class="taskItem"
         [class.taskItemCompleted]="todo.completed"
         role="listitem"
+        (click)="toggleCompletion(todo.id)"
       >
-        <button
-          class="dragHandle"
-          cdkDragHandle
-          aria-label="Drag to reorder task"
-        >
-          <span aria-hidden="true">⠿</span>
-        </button>
-
         <input
           type="checkbox"
           [id]="'task-' + todo.id"
           [checked]="todo.completed"
-          (change)="toggleCompletion(todo.id)"
+          (click)="$event.stopPropagation()"
           class="taskCheckbox"
           [attr.aria-label]="
             'Mark task as ' + (todo.completed ? 'incomplete' : 'complete')
@@ -122,7 +127,7 @@
         </label>
 
         <button
-          (click)="deleteTask(todo.id)"
+          (click)="deleteTask(todo.id); $event.stopPropagation()"
           class="deleteBtn"
           [attr.aria-label]="'Delete task: ' + todo.title"
         >
@@ -131,43 +136,25 @@
       </article>
     </div>
 
-    <p *ngIf="filteredTodos.length === 0" class="emptyState">No todos 🤷‍♂️</p>
+    <p
+      *ngIf="filteredTodos.length === 0 && !isLoading && !fetchError"
+      class="emptyState"
+      role="status"
+    >
+      {{
+        currentFilter === "all"
+          ? "No todos yet"
+          : "No " + currentFilter + " todos"
+      }}
+      🤷‍♂️
+    </p>
   </section>
 
-  <!-- Status section -->
-  <section class="section">
-    <div class="statusGrid">
-      <div class="statusCardsContainer">
-        <article class="statusCard statusCardAll">
-          <p class="statusCardLabel">All</p>
-          <span class="statusCardValue" aria-label="Total tasks">{{
-            totalTasks
-          }}</span>
-        </article>
-        <article class="statusCard statusCardPending">
-          <p class="statusCardLabel">Pending</p>
-          <span class="statusCardValue" aria-label="Pending tasks">{{
-            pendingTasks
-          }}</span>
-        </article>
-        <article class="statusCard statusCardCompleted">
-          <p class="statusCardLabel">Completed</p>
-          <span class="statusCardValue" aria-label="Completed tasks">{{
-            completedTasks
-          }}</span>
-        </article>
-      </div>
-      <div class="chartContainer">
-        <canvas #completionChart aria-label="Task completion chart"></canvas>
-      </div>
+  <div class="smallScreenMessage">
+    <div class="messageContent">
+      <h1>📱 Screen Too Small</h1>
+      <p>We do not support screens smaller than 300px width.</p>
+      <p>Please use a larger device or resize your browser window.</p>
     </div>
-  </section>
-</main>
-
-<div class="smallScreenMessage">
-  <div class="messageContent">
-    <h1>📱 Screen Too Small</h1>
-    <p>We do not support screens smaller than 300px width.</p>
-    <p>Please use a larger device or resize your browser window.</p>
   </div>
-</div>
+</main>

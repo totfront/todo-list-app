@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Chart, registerables } from 'chart.js';
 import { Todo } from './models/todo.model';
 import { TodoService } from './services/todo.service';
@@ -21,7 +20,7 @@ Chart.register(...registerables);
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, DragDropModule],
+  imports: [CommonModule, FormsModule],
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('completionChart') private chartRef!: ElementRef;
@@ -32,6 +31,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   filteredTodos: Todo[] = [];
   newTodoTitle: string = '';
   currentFilter: 'all' | 'pending' | 'completed' = 'all';
+  isLoading: boolean = true;
+  fetchError: string = '';
 
   totalTasks = 0;
   completedTasks = 0;
@@ -40,13 +41,71 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(private todoService: TodoService) {}
 
   ngOnInit(): void {
+    this.loadTodos();
+  }
+
+  loadTodos(): void {
+    this.isLoading = true;
+    this.fetchError = '';
     this.todosSubscription = this.todoService.getTodos().subscribe({
       next: (todos) => {
+        console.log('Component: Received todos update:', todos);
         this.allTodos = todos;
         this.applyFilter();
+        this.isLoading = false;
+        this.fetchError = ''; // Clear any previous errors
       },
-      error: (error) => console.error('Error loading todos:', error),
+      error: (error) => {
+        console.error('Component: Error loading todos:', error);
+
+        // Handle different types of errors
+        if (error.status === 0 || error.statusText === 'Unknown Error') {
+          // Network error - server not reachable
+          this.fetchError =
+            '🔌 Cannot connect to server. Please check if the backend is running.';
+        } else if (error.status === 500) {
+          // Server error
+          this.fetchError = '⚠️ Server error occurred. Please try again.';
+        } else if (error.status === 404) {
+          // Not found
+          this.fetchError = '📄 Resource not found.';
+        } else if (error.error?.message) {
+          // Backend error with message
+          this.fetchError = `❌ ${error.error.message}`;
+        } else if (error.message) {
+          // Other error with message
+          this.fetchError = `❌ ${error.message}`;
+        } else {
+          // Generic error
+          this.fetchError = '❌ An unexpected error occurred.';
+        }
+
+        this.isLoading = false;
+      },
     });
+  }
+
+  retryLoad(): void {
+    this.loadTodos();
+  }
+
+  private showOperationError(operation: string, error: any): void {
+    let errorMessage = '';
+
+    if (error.status === 0 || error.statusText === 'Unknown Error') {
+      errorMessage = `🔌 Cannot ${operation}. Server is not reachable.`;
+    } else if (error.status === 500) {
+      errorMessage = `⚠️ Failed to ${operation}. Server error occurred.`;
+    } else if (error.error?.message) {
+      errorMessage = `❌ Failed to ${operation}: ${error.error.message}`;
+    } else if (error.message) {
+      errorMessage = `❌ Failed to ${operation}: ${error.message}`;
+    } else {
+      errorMessage = `❌ Failed to ${operation}. Please try again.`;
+    }
+
+    // For now, just log the error. You could add a toast notification here
+    console.error(errorMessage);
   }
 
   ngAfterViewInit(): void {
@@ -57,17 +116,33 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.todosSubscription) {
       this.todosSubscription.unsubscribe();
     }
+    if (this.chart) {
+      this.chart.destroy();
+    }
   }
 
   applyFilter(): void {
     if (this.currentFilter === 'pending') {
-      this.filteredTodos = this.allTodos.filter((todo) => !todo.completed);
+      this.filteredTodos = this.allTodos
+        .sort(
+          (a, b) =>
+            new Date(a.createdAt!).getTime() - new Date(b.createdAt!).getTime()
+        )
+        .filter((todo) => !todo.completed);
     }
     if (this.currentFilter === 'completed') {
-      this.filteredTodos = this.allTodos.filter((todo) => todo.completed);
+      this.filteredTodos = this.allTodos
+        .sort(
+          (a, b) =>
+            new Date(a.createdAt!).getTime() - new Date(b.createdAt!).getTime()
+        )
+        .filter((todo) => todo.completed);
     }
     if (this.currentFilter === 'all') {
-      this.filteredTodos = [...this.allTodos];
+      this.filteredTodos = [...this.allTodos].sort(
+        (a, b) =>
+          new Date(a.createdAt!).getTime() - new Date(b.createdAt!).getTime()
+      );
     }
     this.updateSummaryAndChart();
   }
@@ -79,35 +154,42 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   addTask(): void {
     if (this.newTodoTitle.trim()) {
+      console.log('Adding todo:', this.newTodoTitle.trim());
       this.todoService.addTodo(this.newTodoTitle.trim()).subscribe({
-        next: () => {
+        next: (newTodo) => {
+          console.log('Todo added successfully:', newTodo);
           this.newTodoTitle = '';
+          this.loadTodos(); // Refresh todos after adding
         },
-        error: (error) => console.error('Error adding todo:', error),
+        error: (error) => {
+          console.error('Error adding todo:', error);
+          this.showOperationError('adding todo', error);
+        },
       });
     }
   }
 
   toggleCompletion(id: number): void {
     this.todoService.toggleTodoCompletion(id).subscribe({
-      error: (error) => console.error('Error toggling todo:', error),
+      next: () => {
+        this.loadTodos(); // Refresh todos after toggling
+      },
+      error: (error) => {
+        console.error('Error toggling todo:', error);
+        this.showOperationError('toggle todo completion', error);
+      },
     });
   }
 
   deleteTask(id: number): void {
     this.todoService.deleteTodo(id).subscribe({
-      error: (error) => console.error('Error deleting todo:', error),
-    });
-  }
-
-  drop(event: CdkDragDrop<Todo[]>): void {
-    const reorderedTodos = [...this.allTodos];
-    const movedItem = reorderedTodos[event.previousIndex];
-    reorderedTodos.splice(event.previousIndex, 1);
-    reorderedTodos.splice(event.currentIndex, 0, movedItem);
-
-    this.todoService.reorderTodos(reorderedTodos).subscribe({
-      error: (error) => console.error('Error reordering todos:', error),
+      next: () => {
+        this.loadTodos(); // Refresh todos after deleting
+      },
+      error: (error) => {
+        console.error('Error deleting todo:', error);
+        this.showOperationError('delete todo', error);
+      },
     });
   }
 
@@ -130,6 +212,17 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   createChart(): void {
+    // Destroy existing chart if it exists
+    if (this.chart) {
+      this.chart.destroy();
+    }
+
+    // Check if chart element exists
+    if (!this.chartRef?.nativeElement) {
+      console.warn('Chart element not found');
+      return;
+    }
+
     const completedColor = getComputedStyle(document.documentElement)
       .getPropertyValue('--completed-color')
       .trim();
