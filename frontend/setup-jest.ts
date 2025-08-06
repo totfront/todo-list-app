@@ -17,20 +17,6 @@ TestBed.initTestEnvironment(
   platformBrowserDynamicTesting()
 );
 
-// Mock Chart.js
-const mockChart = jest.fn().mockImplementation(() => ({
-  data: {
-    datasets: [{ data: [0, 0] }],
-  },
-  update: jest.fn(),
-  destroy: jest.fn(),
-  resize: jest.fn(),
-}));
-
-global.Chart = mockChart;
-global.Chart.register = jest.fn();
-global.Chart.registerables = [];
-
 // Mock HTMLCanvasElement.getContext
 const mockGetContext = jest.fn().mockReturnValue({
   fillRect: jest.fn(),
