@@ -1,59 +1,215 @@
-# Frontend
+# Todo List Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.1.4.
+A modern Angular application for managing todo tasks with real-time data visualization and filtering capabilities.
 
-## Development server
+## Features
 
-To start a local development server, run:
+- ✅ **Task Management**: Add, toggle, and delete todos
 
-```bash
-ng serve
-```
+- 🔍 **Smart Filtering**: Filter by all, pending, or completed tasks
+- 📱 **Responsive Design**: Works on desktop and mobile devices
+- ⚡ **Real-time Updates**: Automatic data refresh after operations
+- 🎨 **Modern UI**: Clean, intuitive interface with smooth animations
+- 🔄 **Error Handling**: Graceful error handling with retry functionality
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Tech Stack
 
-## Code scaffolding
+- **Framework**: Angular 20.1.0
+- **HTTP Client**: Angular HttpClient
+- **Testing**: Jest
+- **E2E Testing**: Cypress
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Prerequisites
 
-```bash
-ng generate component component-name
-```
+- Node.js (v18 or higher)
+- npm or yarn
+- Backend server running on `http://localhost:3000`
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Installation
 
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+1. Navigate to the frontend directory:
 
 ```bash
-ng test
+cd frontend
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+2. Install dependencies:
 
 ```bash
-ng e2e
+npm install
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Development
+
+### Start Development Server
+
+```bash
+npm start
+```
+
+The application will be available at `http://localhost:4200/`. The page will automatically reload when you make changes to the source files.
+
+### Development Scripts
+
+- `npm start` - Start development server
+- `npm run build` - Build for production
+- `npm run watch` - Build and watch for changes
+- `npm test` - Run unit tests with Jest
+- `npm run test:watch` - Run tests in watch mode
+- `npm run test:coverage` - Run tests with coverage report
+- `npm run e2e` - Run end-to-end tests with Cypress
+- `npm run e2e:open` - Open Cypress test runner
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── app.component.ts          # Main application component
+│   ├── app.component.html        # Main template
+│   ├── app.component.css         # Main styles
+│   ├── app.component.spec.ts     # Main component tests
+│   ├── models/
+│   │   └── todo.model.ts         # Todo interface and DTOs
+│   └── services/
+│       ├── todo.service.ts       # HTTP service for todo operations
+│       └── todo.service.spec.ts  # Service tests
+├── main.ts                       # Application entry point
+├── styles.css                    # Global scope styles
+└── index.html                    # Main HTML file
+```
+
+## API Integration
+
+The frontend communicates with the backend via REST API:
+
+- `GET /todos` - Fetch all todos
+- `POST /todos` - Create new todo
+- `PATCH /todos/:id` - Update todo
+- `PATCH /todos/:id/toggle` - Toggle todo completion
+- `DELETE /todos/:id` - Delete todo
+
+## Key Components
+
+### AppComponent
+
+- Main application component handling todo management
+- Filtering and sorting functionality
+- Error handling and loading states
+
+### TodoService
+
+- HTTP service for backend communication
+- Handles all CRUD operations
+- Returns RxJS Observables for reactive data flow
+
+## Testing
+
+### Unit Tests
+
+```bash
+npm test
+```
+
+Tests are written using Jest and cover:
+
+- Component functionality
+- Service methods
+- Template interactions
+
+### E2E Tests
+
+```bash
+npm run e2e
+```
+
+End-to-end tests using Cypress cover:
+
+- User workflows
+- API integration
+- UI interactions
+
+## Building for Production
+
+```bash
+npm run build
+```
+
+The build artifacts will be stored in the `dist/` directory, optimized for production deployment.
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Backend Connection Error**: Ensure the backend server is running on port 3000
+2. **Tests Failing**: Verify all dependencies are installed correctly
+
+### Error Messages
+
+- 🔌 **Server Connection**: Backend server is not reachable
+- ⚠️ **Server Error**: Backend encountered an error
+- 📄 **Not Found**: Requested resource doesn't exist
+- ❌ **Validation Error**: Invalid data provided
+
+## Contributing
+
+1. Follow Angular style guide
+2. Write tests for new features
+3. Ensure all tests pass before submitting
+4. Update documentation as needed
+
+## Possible Improvements
+
+### 🚀 Performance Enhancements
+
+- **Virtual Scrolling** - Implement virtual scrolling for large todo lists
+- **Lazy Loading** - Add lazy loading for better initial page load
+- **Service Workers** - Implement PWA features for offline functionality
+- **Bundle Optimization** - Tree shaking and code splitting
+
+### 🎨 UI/UX Improvements
+
+- **Dark Mode** - Add theme switching capability
+- **Animations** - Smooth transitions and micro-interactions
+- **Keyboard Shortcuts** - Add keyboard navigation support
+- **Drag & Drop** - Reorder todos with drag and drop
+- **Bulk Operations** - Select multiple todos for bulk actions
+- **Search Functionality** - Add search/filter by todo title
+- **Categories/Tags** - Organize todos with categories or tags
+
+### 🔧 Technical Enhancements
+
+- **Real-time Updates** - WebSocket integration for live updates
+- **Caching** - Implement smart caching strategies
+- **Error Boundaries** - Add error boundaries for better error handling
+- **Accessibility** - Improve ARIA labels and screen reader support
+- **Internationalization** - Add multi-language support
+
+### 📱 Mobile & PWA
+
+- **PWA Features** - Installable app with offline support
+- **Mobile Optimizations** - Touch gestures and mobile-specific UI
+- **Push Notifications** - Reminder notifications for todos
+- **Background Sync** - Sync changes when connection is restored
+
+### 🧪 Testing & Quality
+
+- **E2E Test Coverage** - Expand end-to-end test scenarios
+- **Performance Testing** - Add Lighthouse CI and performance budgets
+- **Visual Regression Testing** - Automated UI testing
+- **Accessibility Testing** - Automated a11y testing
+
+### 🔒 Security & Data
+
+- **User Authentication** - Add user accounts and authentication
+- **Data Encryption** - Encrypt sensitive todo data
+- **Input Validation** - Enhanced client-side validation
+- **Rate Limiting** - Implement request throttling
+- **Lost request** - Implement a loading state for sending a post/update requests
 
 ## Additional Resources
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- [Angular Documentation](https://angular.dev/)
+- [Angular CLI Reference](https://angular.dev/tools/cli)
+- [Jest Testing Framework](https://jestjs.io/)
+- [Cypress E2E Testing](https://docs.cypress.io/)

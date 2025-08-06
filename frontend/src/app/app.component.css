@@ -252,26 +252,14 @@
 
 .filterBtnAll {
   border-color: var(--todo-color);
-
-  &:hover {
-    background-color: var(--todo-color);
-  }
 }
 
 .filterBtnPending {
   border-color: var(--pending-color);
-
-  &:hover {
-    background-color: var(--pending-color);
-  }
 }
 
 .filterBtnCompleted {
   border-color: var(--completed-color);
-
-  &:hover {
-    background-color: var(--completed-color);
-  }
 }
 
 .filterBtnActive {
@@ -299,46 +287,49 @@
 .taskItem {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
   padding: 0.75rem;
-  border: 1px solid #f1f5f9;
   background-color: white;
+  border: 1px solid #e2e8f0;
   border-radius: 0.5rem;
-  transition: all 0.2s;
-  cursor: grab;
-  outline: 1px solid #d2d5d8;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
 
   &:active {
-    cursor: grabbing;
+    transform: scale(0.98);
   }
 }
 
 .taskItemCompleted {
-  opacity: 0.7;
-}
-
-.dragHandle {
-  cursor: move;
-  margin-right: 0.75rem;
-  color: #94a3b8;
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 1.5rem;
-  line-height: 1;
-
-  &:hover {
-    color: #475569;
-  }
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
 }
 
 .taskCheckbox {
-  height: 1.25rem;
   width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #cbd5e1;
   border-radius: 0.25rem;
-  border-color: #d1d5db;
-  color: #4f46e5;
-  margin-right: 1rem;
   cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:checked {
+    background-color: var(--todo-color, #3b82f6);
+    border-color: var(--todo-color, #3b82f6);
+  }
+
+  &:focus {
+    outline: 2px solid var(--todo-color, #3b82f6);
+    outline-offset: 2px;
+  }
 }
 
 .taskTitle {
@@ -351,18 +342,25 @@
 }
 
 .deleteBtn {
-  color: #94a3b8;
-  margin-left: 1rem;
-  transition: color 0.2s;
+  margin-left: auto;
   background: none;
   border: none;
-  padding: 0;
-  font-size: 1.5rem;
-  line-height: 1;
+  color: #94a3b8;
+  font-size: 1.25rem;
   cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+  line-height: 1;
 
   &:hover {
-    color: #ef4444;
+    background-color: #fee2e2;
+    color: #dc2626;
+  }
+
+  &:focus {
+    outline: 2px solid #dc2626;
+    outline-offset: 2px;
   }
 }
 
@@ -393,4 +391,115 @@
 .cdkDropListDragging .cdkDrag {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
   background-color: #eef2ff;
+}
+
+.loadingSpinner {
+  width: 3rem;
+  height: 3rem;
+  border: 3px solid #e2e8f0;
+  border-top: 3px solid var(--todo-color, #3b82f6);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.loadingText {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #64748b;
+  margin: 0;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error Styles */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.75rem;
+}
+
+.errorIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.errorTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #dc2626;
+  margin: 0 0 1rem 0;
+}
+
+.errorText {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #7f1d1d;
+  margin: 0 0 2rem 0;
+  line-height: 1.5;
+  max-width: 500px;
+}
+
+.errorActions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.retryButton {
+  background-color: var(--todo-color, #3b82f6);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #2563eb;
+    transform: translateY(-1px);
+  }
+
+  &:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+}
+
+.dismissButton {
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #4b5563;
+    transform: translateY(-1px);
+  }
+
+  &:focus {
+    outline: 2px solid #6b7280;
+    outline-offset: 2px;
+  }
 }

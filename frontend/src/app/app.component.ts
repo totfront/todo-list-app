@@ -1,37 +1,26 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
-  OnDestroy,
-} from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
-import { Chart, registerables } from 'chart.js';
 import { Todo } from './models/todo.model';
 import { TodoService } from './services/todo.service';
 import { Subscription } from 'rxjs';
-
-Chart.register(...registerables);
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, DragDropModule],
+  imports: [CommonModule, FormsModule],
 })
-export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('completionChart') private chartRef!: ElementRef;
-  private chart!: Chart;
+export class AppComponent implements OnInit, OnDestroy {
   private todosSubscription!: Subscription;
 
   allTodos: Todo[] = [];
   filteredTodos: Todo[] = [];
   newTodoTitle: string = '';
   currentFilter: 'all' | 'pending' | 'completed' = 'all';
+  isLoading: boolean = true;
+  fetchError: string = '';
 
   totalTasks = 0;
   completedTasks = 0;
@@ -40,17 +29,58 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(private todoService: TodoService) {}
 
   ngOnInit(): void {
+    this.loadTodos();
+  }
+
+  loadTodos(): void {
+    this.isLoading = true;
+    this.fetchError = '';
     this.todosSubscription = this.todoService.getTodos().subscribe({
       next: (todos) => {
         this.allTodos = todos;
         this.applyFilter();
+        this.isLoading = false;
+        this.fetchError = '';
       },
-      error: (error) => console.error('Error loading todos:', error),
+      error: (error) => {
+        this.fetchError = this.handleError(error);
+
+        this.isLoading = false;
+      },
     });
   }
 
-  ngAfterViewInit(): void {
-    this.createChart();
+  retryLoad(): void {
+    this.loadTodos();
+  }
+
+  private handleError(error: any, operation?: string): string {
+    switch (error.status) {
+      case 0:
+        return operation
+          ? `🔌 Cannot ${operation}. Server is not reachable.`
+          : '🔌 Cannot connect to server. Please check if the backend is running.';
+      case 404:
+        return '📄 Resource not found.';
+      case 500:
+        return operation
+          ? `⚠️ Failed to ${operation}. Server error occurred.`
+          : '⚠️ Server error occurred. Please try again.';
+      default:
+        if (error.error?.message) {
+          return operation
+            ? `❌ Failed to ${operation}: ${error.error.message}`
+            : `❌ ${error.error.message}`;
+        } else if (error.message) {
+          return operation
+            ? `❌ Failed to ${operation}: ${error.message}`
+            : `❌ ${error.message}`;
+        } else {
+          return operation
+            ? `❌ Failed to ${operation}. Please try again.`
+            : '❌ An unexpected error occurred.';
+        }
+    }
   }
 
   ngOnDestroy(): void {
@@ -61,15 +91,28 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   applyFilter(): void {
     if (this.currentFilter === 'pending') {
-      this.filteredTodos = this.allTodos.filter((todo) => !todo.completed);
+      this.filteredTodos = this.allTodos
+        .sort(
+          (a, b) =>
+            new Date(a.createdAt!).getTime() - new Date(b.createdAt!).getTime()
+        )
+        .filter((todo) => !todo.completed);
     }
     if (this.currentFilter === 'completed') {
-      this.filteredTodos = this.allTodos.filter((todo) => todo.completed);
+      this.filteredTodos = this.allTodos
+        .sort(
+          (a, b) =>
+            new Date(a.createdAt!).getTime() - new Date(b.createdAt!).getTime()
+        )
+        .filter((todo) => todo.completed);
     }
     if (this.currentFilter === 'all') {
-      this.filteredTodos = [...this.allTodos];
+      this.filteredTodos = [...this.allTodos].sort(
+        (a, b) =>
+          new Date(a.createdAt!).getTime() - new Date(b.createdAt!).getTime()
+      );
     }
-    this.updateSummaryAndChart();
+    this.updateSummary();
   }
 
   setFilter(filter: 'all' | 'pending' | 'completed'): void {
@@ -80,34 +123,37 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   addTask(): void {
     if (this.newTodoTitle.trim()) {
       this.todoService.addTodo(this.newTodoTitle.trim()).subscribe({
-        next: () => {
+        next: (newTodo) => {
           this.newTodoTitle = '';
+          this.loadTodos();
         },
-        error: (error) => console.error('Error adding todo:', error),
+        error: (error) => {
+          console.error(this.handleError(error, 'adding todo'));
+        },
       });
     }
   }
 
   toggleCompletion(id: number): void {
     this.todoService.toggleTodoCompletion(id).subscribe({
-      error: (error) => console.error('Error toggling todo:', error),
+      next: () => {
+        this.loadTodos();
+      },
+      error: (error) => {
+        this.fetchError = this.handleError(error, 'toggle todo completion');
+        console.error(this.fetchError);
+      },
     });
   }
 
   deleteTask(id: number): void {
     this.todoService.deleteTodo(id).subscribe({
-      error: (error) => console.error('Error deleting todo:', error),
-    });
-  }
-
-  drop(event: CdkDragDrop<Todo[]>): void {
-    const reorderedTodos = [...this.allTodos];
-    const movedItem = reorderedTodos[event.previousIndex];
-    reorderedTodos.splice(event.previousIndex, 1);
-    reorderedTodos.splice(event.currentIndex, 0, movedItem);
-
-    this.todoService.reorderTodos(reorderedTodos).subscribe({
-      error: (error) => console.error('Error reordering todos:', error),
+      next: () => {
+        this.loadTodos();
+      },
+      error: (error) => {
+        console.error(this.handleError(error, 'delete todo'));
+      },
     });
   }
 
@@ -115,85 +161,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     return todo.id;
   }
 
-  updateSummaryAndChart(): void {
+  updateSummary(): void {
     this.totalTasks = this.allTodos.length;
     this.completedTasks = this.allTodos.filter((todo) => todo.completed).length;
     this.pendingTasks = this.totalTasks - this.completedTasks;
-
-    if (this.chart) {
-      this.chart.data.datasets[0].data = [
-        this.completedTasks,
-        this.pendingTasks,
-      ];
-      this.chart?.update('none');
-    }
-  }
-
-  createChart(): void {
-    const completedColor = getComputedStyle(document.documentElement)
-      .getPropertyValue('--completed-color')
-      .trim();
-    const pendingColor = getComputedStyle(document.documentElement)
-      .getPropertyValue('--pending-color')
-      .trim();
-
-    this.chart = new Chart(this.chartRef.nativeElement, {
-      type: 'doughnut',
-      data: {
-        labels: ['Completed:', 'Pending:'],
-        datasets: [
-          {
-            data: [this.completedTasks, this.pendingTasks],
-            backgroundColor: [completedColor, pendingColor],
-            borderColor: ['#FFFFFF'],
-            borderWidth: 4,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '70%',
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            enabled: true,
-            position: 'nearest',
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            titleColor: 'white',
-            bodyColor: 'white',
-            borderColor: 'rgba(255, 255, 255, 0.2)',
-            borderWidth: 1,
-            cornerRadius: 8,
-            displayColors: false,
-            callbacks: {
-              label: function (context) {
-                const value = context.parsed;
-                const total = context.dataset.data.reduce(
-                  (a: number, b: number) => a + b,
-                  0
-                );
-                const percentage =
-                  total > 0 ? Math.round((value / total) * 100) : 0;
-                return `${value} (${percentage}%)`;
-              },
-            },
-          },
-        },
-        interaction: {
-          intersect: false,
-          mode: 'nearest',
-        },
-        layout: {
-          padding: {
-            top: 10,
-            bottom: 10,
-            left: 10,
-            right: 10,
-          },
-        },
-      },
-    });
-    this.updateSummaryAndChart();
   }
 }
