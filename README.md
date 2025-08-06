@@ -248,12 +248,6 @@ The application uses default configurations, but you can customize:
 - Update documentation as needed
 - Ensure all tests pass before submitting
 
-## 📚 Documentation
-
-- [Frontend Documentation](./frontend/README.md) - Detailed frontend guide
-- [Backend Documentation](./backend/README.md) - Detailed backend guide
-- [API Reference](./backend/README.md#api-endpoints) - Complete API documentation
-
 ## 🎯 Roadmap
 
 ### Planned Features
